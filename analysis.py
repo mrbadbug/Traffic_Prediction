@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler, LabelEncoder
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import LSTM, Dense, ReLU
-import joblib
-import os
+from tensorflow.keras.layers import LSTM, Dense
+from tensorflow.keras.activations import softplus
+
+
 
 # Load dataset
 df = pd.read_csv("/content/drive/MyDrive/Metro_Interstate_Traffic_Volume.csv")
@@ -29,25 +30,11 @@ target = ['traffic_volume']
 X = df[features].values
 y = df[target].values
 
-# Optional: log transform target to stabilize variance
-y_log = np.log1p(y)
-
 # Normalize
 scaler_X = MinMaxScaler()
 scaler_y = MinMaxScaler()
-
 X_scaled = scaler_X.fit_transform(X)
-y_scaled = scaler_y.fit_transform(y_log)
-
-# models directory
-if not os.path.exists('models'):
-    os.makedirs('models')
-
-# Save scalers and encoders
-joblib.dump(scaler_X, "models/scaler_X.pkl")
-joblib.dump(scaler_y, "models/scaler_y.pkl")
-joblib.dump(le_holiday, "models/le_holiday.pkl")
-joblib.dump(le_weather, "models/le_weather.pkl")
+y_scaled = scaler_y.fit_transform(y)
 
 # Create sequences
 SEQ_LENGTH = 10
@@ -68,14 +55,21 @@ y_train, y_test = y_seq[:train_size], y_seq[train_size:]
 # Build LSTM
 model = Sequential()
 model.add(LSTM(64, activation='relu', input_shape=(SEQ_LENGTH, X_seq.shape[2])))
-model.add(Dense(1))
-model.add(ReLU())  # ensures output >= 0
-
+model.add(Dense(1, activation=softplus))
 model.compile(optimizer='adam', loss='mse')
 
 # Train
 model.fit(X_train, y_train, epochs=30, batch_size=32, validation_split=0.1)
+model.save("models/traffic_lstm_model.h5")
 
-# Save model in native Keras format (.keras)
-model.save("models/traffic_lstm_model.keras")
-print("Model saved as models/traffic_lstm_model.keras")
+# Save scalers
+import joblib
+joblib.dump(scaler_X, "models/scaler_X.pkl")
+joblib.dump(scaler_y, "models/scaler_y.pkl")
+
+# Predict and inverse transform
+y_pred_scaled = model.predict(X_test)
+y_pred = scaler_y.inverse_transform(y_pred_scaled)
+
+# Ensure no negative predictions
+y_pred = np.maximum(0, y_pred)
