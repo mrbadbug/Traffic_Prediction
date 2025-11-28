@@ -26,5 +26,3 @@ Integration of-
 -Network layer (Wi-Fi, 4G/5G, or LoRa)
 -Backend server (Flask API / database)
 -Preprocessing pipeline (convert raw data → model features)
--Model integration (predict traffic using LSTM)
--Dashboard / visualization (show live predictions)
