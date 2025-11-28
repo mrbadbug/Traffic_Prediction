@@ -1,4 +1,4 @@
-Traffic volumes prediction using LSTM model.
+Traffic volumes prediction using LSTM model.\n
 -Used to predict future traffic on 22 features.
 -Can indicate rushes forming.
 -Helps plan best time or routes for journey.
