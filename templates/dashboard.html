@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>City-Wide Traffic Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <h1 style="text-align:center;">🚦 City-Wide Traffic Prediction Dashboard</h1>
+    <div id="graph" style="width:95%;height:600px;margin:auto;"></div>
+
+    <script>
+        var roads = {{ roads | tojson }};
+        var layout = {
+            title: 'Traffic Prediction for Multiple Roads',
+            xaxis: { title: 'Time' },
+            yaxis: { title: 'Traffic Volume' }
+        };
+
+        // Create empty traces for each road
+        var traces = [];
+        roads.forEach(function(road){
+            traces.push({x: [], y: [], type: 'scatter', name: road + ' Predicted'});
+        });
+
+        Plotly.newPlot('graph', traces, layout);
+
+        // Fetch and update data every 5 seconds
+        function fetchData(){
+            fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                var updatedY = [];
+                var updatedX = [];
+
+                roads.forEach(function(road){
+                    updatedX.push(data.timestamps, data.timestamps);
+                    updatedY.push(data[road+'_predicted']);
+                });
+
+                Plotly.update('graph', {x: updatedX, y: updatedY});
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+
+        setInterval(fetchData, 5000);
+        fetchData();
+    </script>
+</body>
+</html>
