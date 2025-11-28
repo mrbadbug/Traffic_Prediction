@@ -11,6 +11,5 @@ def home():
     return render_template("dashboard.html", tables=[df.to_html(classes='data')])
 
 if __name__ == "__main__":
-    # Optionally run realtime prediction in background
     threading.Thread(target=rtp.realtime_loop).start()
     app.run(debug=True, host="0.0.0.0", port=5000)
