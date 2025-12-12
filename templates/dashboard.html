@@ -16,7 +16,6 @@
             yaxis: { title: 'Traffic Volume' }
         };
 
-        // Create empty traces for each road
         var traces = [];
         roads.forEach(function(road){
             traces.push({x: [], y: [], type: 'scatter', name: road + ' Predicted'});
@@ -24,7 +23,6 @@
 
         Plotly.newPlot('graph', traces, layout);
 
-        // Fetch and update data every 5 seconds
         function fetchData(){
             fetch('/data')
             .then(response => response.json())
