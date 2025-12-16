@@ -20,6 +20,7 @@
 
 **Future Development:**
 1. Adding Actual Traffic from IoT sensors, alarming system, more accurate data for prediction.
+
 2. Integration of-
  - IoT sensors (cameras, loops, radar)
  - Edge gateway (process & forward data)
